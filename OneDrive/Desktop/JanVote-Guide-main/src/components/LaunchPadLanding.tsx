@@ -76,11 +76,33 @@ interface SelectedPlan {
   price: string;
 }
 
+// ── Success screen config ────────────────────────────────────────────────────
+const SUCCESS: Record<string, { icon: string; title: string; msg: string }> = {
+  earlyAccess: {
+    icon: '🎉',
+    title: "You're on the list!",
+    msg: "We've reserved your spot on the Explorer plan. Expect a launch invite in your inbox within 48 hours.",
+  },
+  payment: {
+    icon: '✅',
+    title: 'Mission Initiated!',
+    msg: "Payment successful. Your Operator plan is now active. Check your email for onboarding instructions.",
+  },
+  contact: {
+    icon: '📡',
+    title: 'Transmission Received!',
+    msg: 'Our enterprise team will prepare a custom proposal and reach out within 24 hours.',
+  },
+};
+
 // ── Component ────────────────────────────────────────────────────────────────
 export default function LaunchPadLanding() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [modal, setModal] = useState<ModalType>(null);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null); // key into SUCCESS map
+  const [cardNumber, setCardNumber] = useState('');
 
   // Lock body scroll when modal open
   useEffect(() => {
@@ -90,16 +112,43 @@ export default function LaunchPadLanding() {
 
   // Close modal on Escape key
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setModal(null); };
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  function closeModal() {
+    setModal(null);
+    setSuccess(null);
+    setLoading(false);
+    setCardNumber('');
+  }
+
   function openPlanModal(plan: typeof PLANS[0]) {
     setSelectedPlan({ name: plan.name, price: plan.price });
+    setSuccess(null);
+    setLoading(false);
     if (plan.type === 'free') setModal('earlyAccess');
     else if (plan.type === 'paid') setModal('payment');
     else setModal('contact');
+  }
+
+  function handleSubmit(type: string) {
+    return (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+      // Simulate async processing (1.5s)
+      setTimeout(() => {
+        setLoading(false);
+        setSuccess(type);
+      }, 1500);
+    };
+  }
+
+  // Auto-format card number: groups of 4 digits
+  function formatCardNumber(val: string) {
+    const digits = val.replace(/\D/g, '').slice(0, 16);
+    return digits.replace(/(.{4})/g, '$1 ').trim();
   }
 
   return (
@@ -263,17 +312,31 @@ export default function LaunchPadLanding() {
 
       {/* Backdrop */}
       {modal && (
-        <div className={styles.backdrop} onClick={() => setModal(null)} aria-hidden="true" />
+        <div className={styles.backdrop} onClick={closeModal} aria-hidden="true" />
       )}
 
       {/* ── Early Access / Free Signup Modal ── */}
-      {modal === 'earlyAccess' && (
+      {/* ── Shared success screen ── */}
+      {modal && success && SUCCESS[success] && (
+        <div className={styles.modal} role="dialog" aria-modal="true">
+          <button className={styles.modalClose} onClick={closeModal} aria-label="Close">✕</button>
+          <div className={styles.successScreen}>
+            <div className={styles.successIcon}>{SUCCESS[success].icon}</div>
+            <h2 className={styles.modalTitle}>{SUCCESS[success].title}</h2>
+            <p className={styles.modalSub}>{SUCCESS[success].msg}</p>
+            <button onClick={closeModal} className={styles.btnPrimary} style={{ marginTop: '8px' }}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Early Access Modal ── */}
+      {modal === 'earlyAccess' && !success && (
         <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="ea-title">
           <button className={styles.modalClose} onClick={() => setModal(null)} aria-label="Close">✕</button>
           <div className={styles.modalIcon}>🚀</div>
           <h2 id="ea-title" className={styles.modalTitle}>Get Early Access</h2>
           <p className={styles.modalSub}>Join the waitlist for LaunchPad — free forever on the Explorer plan.</p>
-          <form className={styles.form} onSubmit={(e) => { e.preventDefault(); setModal(null); alert('🎉 You\'re on the list! We\'ll be in touch.'); }}>
+          <form className={styles.form} onSubmit={handleSubmit('earlyAccess')}>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}>Full Name</label>
               <input required type="text" placeholder="Jane Orbital" className={styles.input} />
@@ -286,15 +349,15 @@ export default function LaunchPadLanding() {
               <label className={styles.fieldLabel}>Company</label>
               <input type="text" placeholder="Stellar Dynamics Inc." className={styles.input} />
             </div>
-            <button type="submit" className={styles.btnPrimary} style={{ width: '100%', marginTop: '8px' }}>
-              Join the Waitlist →
+            <button type="submit" disabled={loading} className={styles.btnPrimary} style={{ width: '100%', marginTop: '8px' }}>
+              {loading ? <span className={styles.spinner} /> : 'Join the Waitlist →'}
             </button>
           </form>
         </div>
       )}
 
       {/* ── Payment Modal ── */}
-      {modal === 'payment' && (
+      {modal === 'payment' && !success && (
         <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="pay-title">
           <button className={styles.modalClose} onClick={() => setModal(null)} aria-label="Close">✕</button>
           <div className={styles.modalIcon}>💳</div>
@@ -302,14 +365,22 @@ export default function LaunchPadLanding() {
             {selectedPlan?.name} Plan — {selectedPlan?.price}<span className={styles.modalPriceSub}>/mo</span>
           </h2>
           <p className={styles.modalSub}>Secure checkout. Cancel anytime. No hidden fees.</p>
-          <form className={styles.form} onSubmit={(e) => { e.preventDefault(); setModal(null); alert('✅ Payment successful! Welcome to LaunchPad Operator.'); }}>
+          <form className={styles.form} onSubmit={handleSubmit('payment')}>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}>Cardholder Name</label>
               <input required type="text" placeholder="Jane Orbital" className={styles.input} />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}>Card Number</label>
-              <input required type="text" placeholder="4242 4242 4242 4242" maxLength={19} className={styles.input} />
+              <input
+                required
+                type="text"
+                placeholder="4242 4242 4242 4242"
+                maxLength={19}
+                className={styles.input}
+                value={cardNumber}
+                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+              />
             </div>
             <div className={styles.fieldRow}>
               <div className={styles.fieldGroup}>
@@ -329,21 +400,21 @@ export default function LaunchPadLanding() {
               <span>Total today</span>
               <span className={styles.payAmount}>{selectedPlan?.price} / month</span>
             </div>
-            <button type="submit" className={styles.btnPrimary} style={{ width: '100%' }}>
-              🔒 Pay {selectedPlan?.price} &amp; Launch Mission
+            <button type="submit" disabled={loading} className={styles.btnPrimary} style={{ width: '100%' }}>
+              {loading ? <span className={styles.spinner} /> : `🔒 Pay ${selectedPlan?.price} & Launch Mission`}
             </button>
           </form>
         </div>
       )}
 
       {/* ── Contact / Enterprise Modal ── */}
-      {modal === 'contact' && (
+      {modal === 'contact' && !success && (
         <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="contact-title">
           <button className={styles.modalClose} onClick={() => setModal(null)} aria-label="Close">✕</button>
           <div className={styles.modalIcon}>🛰️</div>
           <h2 id="contact-title" className={styles.modalTitle}>Enterprise Inquiry</h2>
           <p className={styles.modalSub}>Tell us about your fleet. Our team will prepare a custom proposal within 24 hours.</p>
-          <form className={styles.form} onSubmit={(e) => { e.preventDefault(); setModal(null); alert('📡 Transmission received! Our team will contact you shortly.'); }}>
+          <form className={styles.form} onSubmit={handleSubmit('contact')}>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}>Full Name</label>
               <input required type="text" placeholder="Jane Orbital" className={styles.input} />
@@ -364,8 +435,8 @@ export default function LaunchPadLanding() {
               <label className={styles.fieldLabel}>Message</label>
               <textarea placeholder="Tell us about your mission requirements..." className={styles.textarea} rows={3} />
             </div>
-            <button type="submit" className={styles.btnPrimary} style={{ width: '100%' }}>
-              Send Transmission →
+            <button type="submit" disabled={loading} className={styles.btnPrimary} style={{ width: '100%' }}>
+              {loading ? <span className={styles.spinner} /> : 'Send Transmission →'}
             </button>
           </form>
         </div>
