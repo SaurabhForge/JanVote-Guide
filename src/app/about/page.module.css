@@ -1,0 +1,42 @@
+.missionBox {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 60px 40px;
+  border-radius: var(--radius-xl);
+  background: var(--gradient-card);
+  border: 1px solid var(--border-saffron);
+}
+.missionFlag { font-size: 3.5rem; margin-bottom: 24px; animation: float 4s ease-in-out infinite; }
+.missionBox h2 { margin-bottom: 16px; }
+.missionBox p { color: var(--text-secondary); font-size: 1rem; line-height: 1.75; }
+
+.valueCard { padding: 32px; }
+
+.disclaimerSection { background: rgba(255,153,51,0.02); }
+.disclaimerBox { padding: 40px; max-width: 700px; margin: 0 auto; text-align: center; }
+.disclaimerBox h3 { margin-bottom: 16px; }
+.disclaimerBox p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.75; }
+
+.linksGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 40px;
+}
+.linkCard {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+.linkCard:hover { color: var(--saffron); }
+
+@media (max-width: 900px) { .linksGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .linksGrid { grid-template-columns: 1fr; } }

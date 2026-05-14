@@ -1,0 +1,69 @@
+.methodCard { padding: 32px; display: flex; flex-direction: column; }
+.methodCard h3 { margin-bottom: 20px; }
+
+.methodSteps { display: flex; flex-direction: column; gap: 12px; padding-left: 0; flex: 1; }
+.methodSteps li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.methodSteps li span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,153,51,0.15);
+  color: var(--saffron);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.searchSection { background: rgba(255,153,51,0.02); }
+.searchBox {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-saffron);
+  background: var(--gradient-card);
+  padding: 60px 40px;
+  text-align: center;
+}
+.searchIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255,153,51,0.12);
+  color: var(--saffron);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+.searchBox h2 { margin-bottom: 14px; }
+.searchBox p { max-width: 520px; margin: 0 auto 32px; color: var(--text-secondary); }
+.searchBtns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+.tipsGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+.tipCard { padding: 24px; display: flex; gap: 16px; align-items: flex-start; }
+.tipNum {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,153,51,0.12);
+  color: var(--saffron);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tipCard p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+
+@media (max-width: 900px) { .tipsGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .tipsGrid { grid-template-columns: 1fr; } }

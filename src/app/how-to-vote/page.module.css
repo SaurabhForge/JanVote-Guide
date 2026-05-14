@@ -1,0 +1,99 @@
+.stepsTimeline { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
+
+.timelineItem { display: flex; gap: 24px; align-items: flex-start; }
+
+.timelineLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.timelineLine {
+  width: 2px;
+  flex: 1;
+  min-height: 30px;
+  background: linear-gradient(180deg, var(--saffron), transparent);
+  opacity: 0.3;
+  margin: 8px 0;
+}
+
+.timelineCard {
+  padding: 28px;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+/* Valid IDs */
+.idsSection { background: rgba(19,136,8,0.02); }
+.idsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 40px;
+}
+.idCard {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Voter Rights */
+.rightCard { padding: 28px; }
+
+/* EVM Section */
+.evmSection { background: rgba(255,153,51,0.02); }
+.evmBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+.evmList { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+.evmList li { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; color: var(--text-secondary); }
+
+.evmVisual { display: flex; justify-content: center; }
+.evmCard {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 30px 24px;
+  width: 220px;
+  box-shadow: var(--shadow-card);
+}
+.evmScreen {
+  background: #0a2a0a;
+  border: 2px solid #1a5a1a;
+  border-radius: 8px;
+  text-align: center;
+  padding: 12px;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2de02d;
+  margin-bottom: 20px;
+  letter-spacing: 0.1em;
+}
+.evmButtons { display: flex; flex-direction: column; gap: 12px; }
+.evmBtn { display: flex; align-items: center; gap: 12px; }
+.evmBtnCircle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--saffron);
+  background: rgba(255,153,51,0.1);
+  flex-shrink: 0;
+}
+.evmBtn span { font-size: 0.85rem; color: var(--text-secondary); }
+
+@media (max-width: 900px) {
+  .idsGrid { grid-template-columns: repeat(2, 1fr); }
+  .evmBox { grid-template-columns: 1fr; }
+  .evmVisual { display: none; }
+}
+@media (max-width: 600px) {
+  .idsGrid { grid-template-columns: 1fr; }
+}

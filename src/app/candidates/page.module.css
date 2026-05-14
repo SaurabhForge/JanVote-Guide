@@ -1,0 +1,48 @@
+.sourceCard {
+  padding: 28px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+.sourceLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--saffron);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font-display);
+  margin-top: 20px;
+  transition: var(--transition);
+}
+.sourceCard:hover .sourceLink { gap: 10px; }
+
+.flagsSection { background: rgba(255,153,51,0.02); }
+.flagCard { padding: 32px; }
+.flagHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+.flagList { display: flex; flex-direction: column; gap: 14px; }
+.flagList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.questionCard {
+  padding: 24px 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.questionCard p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; padding-top: 10px; }
