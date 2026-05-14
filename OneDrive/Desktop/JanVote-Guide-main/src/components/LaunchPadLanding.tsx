@@ -1,11 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './LaunchPadLanding.module.css';
 
 // ── Data ────────────────────────────────────────────────────────────────────
 
-const NAV_LINKS = ['Features', 'Pricing', 'Missions', 'Fleet'];
+const NAV_LINKS = [
+  { label: 'Features', id: 'features' },
+  { label: 'Pricing', id: 'pricing' },
+  { label: 'Missions', id: 'missions' },
+  { label: 'Fleet', id: 'fleet' },
+];
 
 const FEATURES = [
   {
@@ -33,6 +38,7 @@ const PLANS = [
     features: ['Up to 3 Satellites', 'Basic Telemetry', '10 Ground Stations'],
     cta: 'Start Free',
     highlight: false,
+    type: 'free',
   },
   {
     name: 'Operator',
@@ -41,6 +47,7 @@ const PLANS = [
     features: ['Up to 25 Satellites', 'Real-time Optimization', 'Full Station Network', 'API Access'],
     cta: 'Begin Mission',
     highlight: true,
+    type: 'paid',
   },
   {
     name: 'Enterprise',
@@ -49,18 +56,55 @@ const PLANS = [
     features: ['Unlimited Fleet Size', 'Dedicated Hardware Downlink', '24/7 Mission Support'],
     cta: 'Contact Us',
     highlight: false,
+    type: 'enterprise',
   },
 ];
 
 const FOOTER_LINKS = ['Telemetry', 'Flight Deck', 'Protocol', 'Terminal'];
 
-// ── Component ────────────────────────────────────────────────────────────────
+// ── Smooth scroll helper ────────────────────────────────────────────────────
+function scrollTo(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
+// ── Modal types ─────────────────────────────────────────────────────────────
+type ModalType = 'earlyAccess' | 'payment' | 'contact' | null;
+
+interface SelectedPlan {
+  name: string;
+  price: string;
+}
+
+// ── Component ────────────────────────────────────────────────────────────────
 export default function LaunchPadLanding() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [modal, setModal] = useState<ModalType>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
+
+  // Lock body scroll when modal open
+  useEffect(() => {
+    document.body.style.overflow = modal ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [modal]);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setModal(null); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  function openPlanModal(plan: typeof PLANS[0]) {
+    setSelectedPlan({ name: plan.name, price: plan.price });
+    if (plan.type === 'free') setModal('earlyAccess');
+    else if (plan.type === 'paid') setModal('payment');
+    else setModal('contact');
+  }
 
   return (
     <div className={styles.root}>
+
       {/* ── Navbar ── */}
       <nav className={styles.nav}>
         <div className={styles.navInner}>
@@ -69,18 +113,16 @@ export default function LaunchPadLanding() {
             LAUNCHPAD
           </span>
 
-          {/* Desktop links */}
           <ul className={styles.navLinks}>
             {NAV_LINKS.map((l) => (
-              <li key={l}>
-                <a href={`#${l.toLowerCase()}`} className={styles.navLink}>{l}</a>
+              <li key={l.id}>
+                <button onClick={() => scrollTo(l.id)} className={styles.navLink}>{l.label}</button>
               </li>
             ))}
           </ul>
 
-          <a href="#pricing" className={styles.navCta}>Get Early Access</a>
+          <button onClick={() => setModal('earlyAccess')} className={styles.navCta}>Get Early Access</button>
 
-          {/* Hamburger */}
           <button
             className={styles.hamburger}
             onClick={() => setMenuOpen((o) => !o)}
@@ -92,27 +134,29 @@ export default function LaunchPadLanding() {
           </button>
         </div>
 
-        {/* Mobile drawer */}
         {menuOpen && (
           <ul className={styles.mobileMenu}>
             {NAV_LINKS.map((l) => (
-              <li key={l}>
-                <a href={`#${l.toLowerCase()}`} className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-                  {l}
-                </a>
+              <li key={l.id}>
+                <button
+                  className={styles.mobileLink}
+                  onClick={() => { scrollTo(l.id); setMenuOpen(false); }}
+                >
+                  {l.label}
+                </button>
               </li>
             ))}
             <li>
-              <a href="#pricing" className={styles.mobileCta} onClick={() => setMenuOpen(false)}>
+              <button className={styles.mobileCta} onClick={() => { setModal('earlyAccess'); setMenuOpen(false); }}>
                 Get Early Access
-              </a>
+              </button>
             </li>
           </ul>
         )}
       </nav>
 
       {/* ── Hero ── */}
-      <section className={styles.hero} id="features">
+      <section className={styles.hero} id="hero">
         <div className={styles.heroBadge}>
           <span className={styles.beaconDot} />
           Now in Public Beta
@@ -126,17 +170,15 @@ export default function LaunchPadLanding() {
           Track, optimize, and scale your satellite constellations with aerospace-grade precision.
         </p>
         <div className={styles.heroCtas}>
-          <a href="#pricing" className={styles.btnPrimary}>Get Early Access</a>
-          <a href="#features" className={styles.btnGhost}>See Features →</a>
+          <button onClick={() => setModal('earlyAccess')} className={styles.btnPrimary}>Get Early Access</button>
+          <button onClick={() => scrollTo('features')} className={styles.btnGhost}>See Features →</button>
         </div>
-
-        {/* Decorative glow orbs */}
         <div className={styles.orb1} />
         <div className={styles.orb2} />
       </section>
 
       {/* ── Features ── */}
-      <section className={styles.section} id="missions">
+      <section className={styles.section} id="features">
         <p className={styles.sectionLabel}>ORBITAL DOMAIN SUPERIORITY</p>
         <h2 className={styles.sectionTitle}>
           Propel your operations forward with tools designed for the complexities of modern spaceflight.
@@ -150,6 +192,17 @@ export default function LaunchPadLanding() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* ── Missions stat band ── */}
+      <section className={styles.statBand} id="missions">
+        <div className={styles.statItem}><span className={styles.statNum}>400+</span><span className={styles.statLabel}>Companies</span></div>
+        <div className={styles.statDivider} />
+        <div className={styles.statItem}><span className={styles.statNum}>42</span><span className={styles.statLabel}>Ground Stations</span></div>
+        <div className={styles.statDivider} />
+        <div className={styles.statItem}><span className={styles.statNum}>99.9%</span><span className={styles.statLabel}>Uptime SLA</span></div>
+        <div className={styles.statDivider} />
+        <div className={styles.statItem}><span className={styles.statNum}>{'<1ms'}</span><span className={styles.statLabel}>Latency</span></div>
       </section>
 
       {/* ── Pricing ── */}
@@ -170,7 +223,12 @@ export default function LaunchPadLanding() {
                   </li>
                 ))}
               </ul>
-              <a href="#" className={p.highlight ? styles.btnPrimary : styles.btnOutline}>{p.cta}</a>
+              <button
+                onClick={() => openPlanModal(p)}
+                className={p.highlight ? styles.btnPrimary : styles.btnOutline}
+              >
+                {p.cta}
+              </button>
             </div>
           ))}
         </div>
@@ -184,7 +242,7 @@ export default function LaunchPadLanding() {
           Join over 400 space tech companies managing their orbital assets with LaunchPad.
           Start your trial today and reach the stars tomorrow.
         </p>
-        <a href="#" className={styles.btnPrimary}>Start Free Trial</a>
+        <button onClick={() => setModal('earlyAccess')} className={styles.btnPrimary}>Start Free Trial</button>
       </section>
 
       {/* ── Footer ── */}
@@ -195,11 +253,124 @@ export default function LaunchPadLanding() {
         </span>
         <ul className={styles.footerLinks}>
           {FOOTER_LINKS.map((l) => (
-            <li key={l}><a href="#" className={styles.footerLink}>{l}</a></li>
+            <li key={l}><button onClick={() => scrollTo('features')} className={styles.footerLink}>{l}</button></li>
           ))}
         </ul>
         <p className={styles.copyright}>© 2024 LAUNCHPAD ORBITAL SYSTEMS. ALL TRAJECTORIES RESERVED.</p>
       </footer>
+
+      {/* ════════════════ MODALS ════════════════ */}
+
+      {/* Backdrop */}
+      {modal && (
+        <div className={styles.backdrop} onClick={() => setModal(null)} aria-hidden="true" />
+      )}
+
+      {/* ── Early Access / Free Signup Modal ── */}
+      {modal === 'earlyAccess' && (
+        <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="ea-title">
+          <button className={styles.modalClose} onClick={() => setModal(null)} aria-label="Close">✕</button>
+          <div className={styles.modalIcon}>🚀</div>
+          <h2 id="ea-title" className={styles.modalTitle}>Get Early Access</h2>
+          <p className={styles.modalSub}>Join the waitlist for LaunchPad — free forever on the Explorer plan.</p>
+          <form className={styles.form} onSubmit={(e) => { e.preventDefault(); setModal(null); alert('🎉 You\'re on the list! We\'ll be in touch.'); }}>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Full Name</label>
+              <input required type="text" placeholder="Jane Orbital" className={styles.input} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Work Email</label>
+              <input required type="email" placeholder="jane@spacetech.io" className={styles.input} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Company</label>
+              <input type="text" placeholder="Stellar Dynamics Inc." className={styles.input} />
+            </div>
+            <button type="submit" className={styles.btnPrimary} style={{ width: '100%', marginTop: '8px' }}>
+              Join the Waitlist →
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* ── Payment Modal ── */}
+      {modal === 'payment' && (
+        <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="pay-title">
+          <button className={styles.modalClose} onClick={() => setModal(null)} aria-label="Close">✕</button>
+          <div className={styles.modalIcon}>💳</div>
+          <h2 id="pay-title" className={styles.modalTitle}>
+            {selectedPlan?.name} Plan — {selectedPlan?.price}<span className={styles.modalPriceSub}>/mo</span>
+          </h2>
+          <p className={styles.modalSub}>Secure checkout. Cancel anytime. No hidden fees.</p>
+          <form className={styles.form} onSubmit={(e) => { e.preventDefault(); setModal(null); alert('✅ Payment successful! Welcome to LaunchPad Operator.'); }}>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Cardholder Name</label>
+              <input required type="text" placeholder="Jane Orbital" className={styles.input} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Card Number</label>
+              <input required type="text" placeholder="4242 4242 4242 4242" maxLength={19} className={styles.input} />
+            </div>
+            <div className={styles.fieldRow}>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>Expiry</label>
+                <input required type="text" placeholder="MM / YY" maxLength={7} className={styles.input} />
+              </div>
+              <div className={styles.fieldGroup}>
+                <label className={styles.fieldLabel}>CVC</label>
+                <input required type="text" placeholder="123" maxLength={4} className={styles.input} />
+              </div>
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Email for Receipt</label>
+              <input required type="email" placeholder="jane@spacetech.io" className={styles.input} />
+            </div>
+            <div className={styles.payTotal}>
+              <span>Total today</span>
+              <span className={styles.payAmount}>{selectedPlan?.price} / month</span>
+            </div>
+            <button type="submit" className={styles.btnPrimary} style={{ width: '100%' }}>
+              🔒 Pay {selectedPlan?.price} &amp; Launch Mission
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* ── Contact / Enterprise Modal ── */}
+      {modal === 'contact' && (
+        <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="contact-title">
+          <button className={styles.modalClose} onClick={() => setModal(null)} aria-label="Close">✕</button>
+          <div className={styles.modalIcon}>🛰️</div>
+          <h2 id="contact-title" className={styles.modalTitle}>Enterprise Inquiry</h2>
+          <p className={styles.modalSub}>Tell us about your fleet. Our team will prepare a custom proposal within 24 hours.</p>
+          <form className={styles.form} onSubmit={(e) => { e.preventDefault(); setModal(null); alert('📡 Transmission received! Our team will contact you shortly.'); }}>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Full Name</label>
+              <input required type="text" placeholder="Jane Orbital" className={styles.input} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Work Email</label>
+              <input required type="email" placeholder="jane@spacetech.io" className={styles.input} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Company Name</label>
+              <input required type="text" placeholder="Stellar Dynamics Inc." className={styles.input} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Fleet Size (# of satellites)</label>
+              <input type="number" placeholder="e.g. 150" min="1" className={styles.input} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.fieldLabel}>Message</label>
+              <textarea placeholder="Tell us about your mission requirements..." className={styles.textarea} rows={3} />
+            </div>
+            <button type="submit" className={styles.btnPrimary} style={{ width: '100%' }}>
+              Send Transmission →
+            </button>
+          </form>
+        </div>
+      )}
+
     </div>
   );
 }
